@@ -5,7 +5,6 @@ import useAxiosSecure from '../../../hooks/useAxiosSecure'
 import { FaSearch } from 'react-icons/fa'
 const MakeAdmin = () => {
   const axiosSecure = useAxiosSecure()
-  //   const queryClient = useQueryClient()
 
   const [searchText, setSearchText] = useState('')
 
@@ -15,7 +14,7 @@ const MakeAdmin = () => {
     refetch,
   } = useQuery({
     queryKey: ['search-users', searchText],
-    enabled: searchText.length > 0, // only run when user types
+    enabled: searchText.length > 0,
     queryFn: async () => {
       const res = await axiosSecure.get(`/users/search?email=${searchText}`)
       return res.data
