@@ -136,73 +136,53 @@ const AssignRider = () => {
       </table>
 
       {/* Modal */}
-      {/* Modal */}
       {modalOpen && (
         <dialog className='modal modal-open'>
           <div className='modal-box max-w-3xl'>
             <h3 className='font-bold text-lg mb-4'>
               Assign Riders for Parcel: {selectedParcel.parcelName}
             </h3>
-            {riders.length === 0 ? (
-              <p className='text-red-500'>
-                No riders available in this district
-              </p>
-            ) : (
-              <div className='overflow-x-auto'>
-                <table className='table table-zebra'>
-                  <thead>
+
+            <div className='overflow-x-auto'>
+              <table className='table table-zebra'>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Bike Info</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {riders.length > 0 ? (
+                    riders.map((rider, index) => (
+                      <tr key={rider._id}>
+                        <td>{index + 1}</td>
+                        <td>{rider.name}</td>
+                        <td>{rider.phone}</td>
+                        <td>{rider.bikeRegNumber}</td>
+                        <td>
+                          <button
+                            className='btn btn-success btn-sm'
+                            onClick={() => handleAssignRider(rider)}
+                          >
+                            Assign
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
                     <tr>
-                      <th>#</th>
-                      <th>Name</th>
-                      <th>Phone</th>
-                      <th>Bike Info</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {riders.length === 0 ? (
-                      <p className='text-red-500'>
+                      <td colSpan='5' className='text-center text-red-500'>
                         No riders available in this district
-                      </p>
-                    ) : (
-                      <div className='overflow-x-auto'>
-                        <table className='table table-zebra'>
-                          <thead>
-                            <tr>
-                              <th>#</th>
-                              <th>Name</th>
-                              <th>Phone</th>
-                              <th>Bike Info</th>
-                              <th>Action</th>
-                            </tr>
-                          </thead>
-
-                          <tbody>
-                            {riders.map((rider, index) => (
-                              <tr key={rider._id}>
-                                <td>{index + 1}</td>
-                                <td>{rider.name}</td>
-                                <td>{rider.phone}</td>
-                                <td>{rider.bikeRegNumber}</td>
-                                <td>
-                                  <button
-                                    className='btn btn-success btn-sm'
-                                    onClick={() => handleAssignRider(rider)}
-                                  >
-                                    Assign
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
 
             <div className='modal-action'>
               <button className='btn' onClick={() => setModalOpen(false)}>

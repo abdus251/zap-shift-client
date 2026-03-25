@@ -27,7 +27,7 @@ const TrackParcel = () => {
       console.log('FETCHING:', search) // ✅ DEBUG
 
       const res = await axios.get(
-        `https://zap-shift-server-8nko.onrender.com/parcels/track/${search}`,
+        `http://localhost:5000/parcels/track/${search}`,
       )
 
       return res.data
@@ -44,7 +44,7 @@ const TrackParcel = () => {
 
     const trimmed = trackingNumber.trim()
 
-    console.log('INPUT VALUE:', trimmed) // ✅ DEBUG
+    console.log('INPUT VALUE:', trimmed)
 
     if (!trimmed || !trimmed.startsWith('PARCEL-')) {
       Swal.fire('Error', 'Enter valid tracking number (PARCEL-xxx)', 'error')

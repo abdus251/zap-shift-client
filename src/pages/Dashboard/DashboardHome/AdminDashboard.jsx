@@ -79,7 +79,7 @@ const AdminDashboard = () => {
 
   return (
     <div className='space-y-8'>
-      <h2 className='text-2xl font-bold'>User Dashboard</h2>
+      <h2 className='text-2xl font-bold p-5'>Admin Dashboard</h2>
       {/* Cards */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
         {formattedData.map((item, index) => (
