@@ -16,7 +16,7 @@ import BeARider from '../pages/Dashboard/BeARider/BeARider'
 import PendingRiders from '../pages/Dashboard/PendingRiders/PendingRiders'
 import ActiveRiders from '../pages/Dashboard/ActiveRiders/ActiveRiders'
 import MakeAdmin from '../pages/Dashboard/MakeAdmin/MakeAdmin'
-import Forbidden from '../pages/forbidden/Forbidden'
+// import Forbidden from '../pages/forbidden/Forbidden'
 import AdminRoute from '../routes/AdminRoute'
 import AssignRider from '../pages/Dashboard/AssignRider/AssignRider'
 import PendingDeliveries from '../pages/Dashboard/PendingDeliveries/PendingDeliveries'
@@ -26,6 +26,7 @@ import RiderRoute from '../routes/RiderRoute'
 import DashboardHome from '../pages/Dashboard/DashboardHome/DashboardHome'
 import AboutUs from '../pages/Dashboard/AboutUs'
 import UpdateProfile from '../pages/Dashboard/UpdateProfile/UpdateProfile'
+import Forbidden from '../pages/Forbid/Forbid'
 
 export const router = createBrowserRouter([
   {

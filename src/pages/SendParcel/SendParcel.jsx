@@ -131,7 +131,8 @@ const SendParcel = () => {
       if (result.isConfirmed) {
         const parcelData = {
           ...data,
-          email: user?.email || 'guest@example.com',
+          senderEmail: user?.email || 'guest@example.com',
+          email: user?.email || null,
           deliveryCost: pricing.total,
           paymentStatus: 'pending',
           parcelStatus: 'created',

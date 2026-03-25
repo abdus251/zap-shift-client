@@ -14,7 +14,9 @@ const CompletedDeliveries = () => {
     queryKey: ['completedDeliveries', email],
     enabled: !!email,
     queryFn: async () => {
-      const res = await axiosSecure.get(`/rider/completed-parcels`)
+      const res = await axiosSecure.get(
+        `/riders/completed-parcels?email=${email}`,
+      )
       return res.data
     },
   })

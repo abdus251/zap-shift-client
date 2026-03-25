@@ -17,7 +17,7 @@ const RiderDashboard = () => {
   const { data: statusCount = {}, isLoading } = useQuery({
     queryKey: ['rider-status-count'],
     queryFn: async () => {
-      const res = await axiosSecure.get('/rider/status-count')
+      const res = await axiosSecure.get('/riders/status-count')
       return res.data
     },
   })
@@ -28,9 +28,9 @@ const RiderDashboard = () => {
 
   // 🔹 Prepare chart data
   const data = [
-    { name: 'Assigned', value: statusCount.rider_assigned || 0 },
-    { name: 'In Transit', value: statusCount.in_transit || 0 },
-    { name: 'Delivered', value: statusCount.delivered || 0 },
+    { name: 'Assigned', value: statusCount.assigned ?? 0 },
+    { name: 'In Transit', value: statusCount.in_transit ?? 0 },
+    { name: 'Delivered', value: statusCount.delivered ?? 0 },
   ]
 
   const COLORS = ['#facc15', '#38bdf8', '#22c55e']

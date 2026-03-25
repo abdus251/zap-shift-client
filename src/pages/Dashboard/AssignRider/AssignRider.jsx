@@ -11,26 +11,28 @@ const AssignRider = () => {
 
   // Load parcels
   const { data: parcels = [] } = useQuery({
-    queryKey: ['paidParcels'],
+    queryKey: ['parcels', 'paid'],
     queryFn: async () => {
-      const res = await axiosSecure.get('/parcels?paymentStatus=paid')
-      return res.data.data
+      const res = await axiosSecure.get(
+        '/parcels?paymentStatus=paid&deliveryStatus=paid',
+      )
+      return res.data
     },
   })
 
-  // Load riders based on district
+  // Load riders
   const { data: riders = [] } = useQuery({
-    queryKey: ['paidParcels'],
+    queryKey: ['riders', selectedParcel?.receiverRegion],
+    enabled: !!selectedParcel,
     queryFn: async () => {
       const res = await axiosSecure.get(
-        '/parcels?paymentStatus=paid&deliveryStatus=created',
+        `/riders/active?region=${selectedParcel.receiverRegion}`,
       )
-      return res.data.data
+      return res.data
     },
   })
 
   const handleOpenModal = (parcel) => {
-    console.log('Opening modal for parcel:', parcel)
     setSelectedParcel(parcel)
     setModalOpen(true)
   }
@@ -66,10 +68,9 @@ const AssignRider = () => {
             showConfirmButton: false,
           })
 
-          // ✅ Important: invalidate so React Query refetches fresh data
-          queryClient.invalidateQueries({
-            queryKey: ['paidParcels'],
-          })
+          // ✅ Invalidate queries
+          queryClient.invalidateQueries({ queryKey: ['parcels', 'paid'] })
+          queryClient.invalidateQueries({ queryKey: ['riders', 'active'] })
 
           // Reset modal state
           setModalOpen(false)
@@ -142,7 +143,6 @@ const AssignRider = () => {
             <h3 className='font-bold text-lg mb-4'>
               Assign Riders for Parcel: {selectedParcel.parcelName}
             </h3>
-
             {riders.length === 0 ? (
               <p className='text-red-500'>
                 No riders available in this district
@@ -161,23 +161,44 @@ const AssignRider = () => {
                   </thead>
 
                   <tbody>
-                    {riders.map((rider, index) => (
-                      <tr key={rider._id}>
-                        <td>{index + 1}</td>
-                        <td>{rider.email}</td>
-                        <td>{rider.name}</td>
-                        <td>{rider.phone}</td>
-                        <td>{rider.bikeInfo || rider.bikeNumber}</td>
-                        <td>
-                          <button
-                            className='btn btn-success btn-sm'
-                            onClick={() => handleAssignRider(rider)}
-                          >
-                            Assign
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    {riders.length === 0 ? (
+                      <p className='text-red-500'>
+                        No riders available in this district
+                      </p>
+                    ) : (
+                      <div className='overflow-x-auto'>
+                        <table className='table table-zebra'>
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Name</th>
+                              <th>Phone</th>
+                              <th>Bike Info</th>
+                              <th>Action</th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {riders.map((rider, index) => (
+                              <tr key={rider._id}>
+                                <td>{index + 1}</td>
+                                <td>{rider.name}</td>
+                                <td>{rider.phone}</td>
+                                <td>{rider.bikeRegNumber}</td>
+                                <td>
+                                  <button
+                                    className='btn btn-success btn-sm'
+                                    onClick={() => handleAssignRider(rider)}
+                                  >
+                                    Assign
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </tbody>
                 </table>
               </div>

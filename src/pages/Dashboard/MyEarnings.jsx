@@ -18,10 +18,8 @@ const MyEarnings = () => {
     queryKey: ['completedDeliveries', email],
     enabled: !!email,
     queryFn: async () => {
-      const res = await axiosSecure.get(
-        `/rider/completed-parcels?email=${email}`,
-      )
-      return res.data
+      const res = await axiosSecure.get(`/rider/earnings?email=${email}`)
+      return res.data || []
     },
   })
 
@@ -50,9 +48,11 @@ const MyEarnings = () => {
   parcels.forEach((p) => {
     const earning = calculateEarning(p)
 
-    const deliveredAt = p.deliveredAt
-      ? new Date(p.deliveredAt)
-      : new Date(p.createdAt)
+    const deliveredAt = new Date(
+      p.deliveredAt ||
+        p.history?.find((h) => h.status === 'delivered')?.timestamp ||
+        p.createdAt,
+    )
 
     total += earning
 

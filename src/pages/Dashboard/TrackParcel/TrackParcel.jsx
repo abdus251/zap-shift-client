@@ -1,153 +1,144 @@
-'use client'
-
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import React, { useState } from 'react'
 import axios from 'axios'
+import { useQuery } from '@tanstack/react-query'
 import Swal from 'sweetalert2'
 
 const TrackParcel = () => {
   const [trackingNumber, setTrackingNumber] = useState('')
-  const [enabled, setEnabled] = useState(false)
+  const [search, setSearch] = useState('')
 
-  const statusSteps = ['created', 'rider_assigned', 'delivered']
+  const statusSteps = [
+    'created',
+    'paid',
+    'rider_assigned',
+    'in_transit',
+    'delivered',
+  ]
 
-  // Fetch parcel based on tracking number
+  // ✅ FETCH PARCEL
   const {
     data: parcel,
     isLoading,
     isError,
-    refetch,
   } = useQuery({
-    queryKey: ['parcel', trackingNumber],
+    queryKey: ['parcel', search],
+    enabled: !!search,
     queryFn: async () => {
+      console.log('FETCHING:', search) // ✅ DEBUG
+
       const res = await axios.get(
-        `http://localhost:5000/track/${trackingNumber}`,
+        `http://localhost:5000/parcels/track/${search}`,
       )
+
       return res.data
     },
-    enabled,
     retry: false,
   })
 
+  console.log('TRACKED PARCEL:', parcel)
+  console.log('STATUS:', parcel?.deliveryStatus)
+
+  // ✅ HANDLE TRACK
   const handleTrack = (e) => {
     e.preventDefault()
-    if (!trackingNumber.trim()) {
-      Swal.fire('Error', 'Please enter a tracking number', 'error')
+
+    const trimmed = trackingNumber.trim()
+
+    console.log('INPUT VALUE:', trimmed) // ✅ DEBUG
+
+    if (!trimmed || !trimmed.startsWith('PARCEL-')) {
+      Swal.fire('Error', 'Enter valid tracking number (PARCEL-xxx)', 'error')
       return
     }
-    setEnabled(true)
-    refetch()
+
+    setSearch(trimmed) // ✅ ONLY valid value goes
   }
 
-  // Helper to get step index
-  const getStepIndex = (status) => statusSteps.indexOf(status)
+  // ✅ GET CURRENT STEP FROM HISTORY
+
+  const getCurrentStep = () => {
+    if (!parcel?.history?.length) return -1
+
+    const lastStatus =
+      parcel.history[parcel.history.length - 1]?.status || 'created'
+
+    return statusSteps.indexOf(lastStatus)
+  }
+  const currentStep = getCurrentStep()
 
   return (
     <div className='max-w-3xl mx-auto p-6'>
       <h1 className='text-3xl font-bold text-center mb-6'>Track Your Parcel</h1>
 
-      {/* Tracking input */}
-      <form className='flex gap-2 mb-6 justify-center' onSubmit={handleTrack}>
+      {/* INPUT */}
+      <form onSubmit={handleTrack} className='flex gap-2 mb-6'>
         <input
           type='text'
-          placeholder='Enter Tracking Number'
+          placeholder='Enter Tracking Number (PARCEL-xxxx)'
           className='input input-bordered flex-1'
           value={trackingNumber}
           onChange={(e) => setTrackingNumber(e.target.value)}
         />
-        <button type='submit' className='btn btn-primary'>
-          Track
-        </button>
+        <button className='btn btn-primary'>Track</button>
       </form>
 
-      {/* Loading state */}
-      {isLoading && (
-        <div className='flex justify-center py-6'>
-          <span className='loading loading-spinner loading-lg text-primary'></span>
-        </div>
+      {/* LOADING */}
+      {isLoading && <p className='text-center'>Loading...</p>}
+
+      {/* ERROR */}
+      {isError && (
+        <p className='text-center text-red-500'>Parcel not found ❌</p>
       )}
 
-      {/* Error or not found */}
-      {isError && enabled && (
-        <p className='text-red-500 text-center'>
-          Parcel not found or server error.
-        </p>
-      )}
-
-      {/* Parcel Details */}
+      {/* RESULT */}
       {parcel && (
-        <div className='card shadow-lg p-6'>
-          <h2 className='text-2xl font-semibold mb-4'>{parcel.parcelName}</h2>
+        <div className='card p-6 shadow-lg'>
+          <h2 className='text-xl font-bold mb-4'>{parcel.parcelName}</h2>
 
-          {/* Delivery Status Progress */}
-          <div className='mb-6'>
-            <h3 className='font-semibold mb-2'>Delivery Progress:</h3>
-            <ul className='steps steps-vertical md:steps-horizontal'>
-              {statusSteps.map((step, index) => (
-                <li
-                  key={index}
-                  className={`step ${
-                    getStepIndex(parcel.deliveryStatus) >= index
-                      ? 'step-primary'
-                      : ''
-                  }`}
-                >
-                  {step.replace('_', ' ').toUpperCase()}
-                </li>
-              ))}
-            </ul>
+          {/* ✅ PROGRESS */}
+          <ul className='steps steps-horizontal w-full mb-6'>
+            {statusSteps.map((step, index) => (
+              <li
+                key={step}
+                className={`step ${index <= currentStep ? 'step-primary' : ''}`}
+              >
+                {step.replace('_', ' ').toUpperCase()}
+              </li>
+            ))}
+          </ul>
+
+          {/* INFO */}
+          <div className='space-y-2'>
+            <p>
+              <b>Tracking:</b> {parcel.trackingNumber}
+            </p>
+            <p>
+              <b>Status:</b> {parcel.deliveryStatus}
+            </p>
+            <p>
+              <b>Payment:</b> {parcel.paymentStatus}
+            </p>
+            <p>
+              <b>Cost:</b> ৳ {parcel.deliveryCost}
+            </p>
           </div>
 
-          {/* Sender & Receiver Info */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
-            <div>
-              <h3 className='font-semibold'>Sender Info:</h3>
-              <p>{parcel.senderName}</p>
-              <p>{parcel.senderContact}</p>
-              <p>{parcel.senderServiceCenter}</p>
-              <p>{parcel.senderAddress}</p>
-            </div>
+          {/* HISTORY */}
+          <div className='mt-6'>
+            <h3 className='font-semibold mb-2'>History</h3>
 
-            <div>
-              <h3 className='font-semibold'>Receiver Info:</h3>
-              <p>{parcel.receiverName}</p>
-              <p>{parcel.receiverContact}</p>
-              <p>{parcel.receiverServiceCenter}</p>
-              <p>{parcel.receiverAddress}</p>
-            </div>
-          </div>
-
-          {/* Parcel Info */}
-          <div className='mb-4'>
-            <h3 className='font-semibold'>Parcel Info:</h3>
-            <p>Type: {parcel.parcelType}</p>
-            <p>Delivery Cost: ${parcel.deliveryCost}</p>
-            <p>Payment Status: {parcel.paymentStatus}</p>
-            <p>Parcel Status: {parcel.parcelStatus}</p>
-            <p>Delivery Status: {parcel.deliveryStatus}</p>
-            <p>Tracking Number: {parcel.trackingNumber}</p>
-          </div>
-
-          {/* Assigned Rider */}
-          {parcel.assignedRiderName && (
-            <div className='mb-4'>
-              <h3 className='font-semibold'>Assigned Rider:</h3>
-              <p>{parcel.assignedRiderName}</p>
-              <p>{parcel.assignedRiderEmail}</p>
-            </div>
-          )}
-
-          {/* Delivery History */}
-          <div>
-            <h3 className='font-semibold mb-2'>Delivery History:</h3>
-            <ul className='steps steps-vertical'>
-              {parcel.history.map((item, index) => (
-                <li key={index} className='step step-primary'>
-                  {item.status.replace('_', ' ').toUpperCase()} -{' '}
-                  {new Date(item.timestamp).toLocaleString()}
-                </li>
-              ))}
-            </ul>
+            {parcel.history?.length > 0 ? (
+              <ul className='steps steps-vertical'>
+                {parcel.history.map((h, i) => (
+                  <li key={i} className='step step-primary'>
+                    {h.status.toUpperCase()} -{' '}
+                    {new Date(h.timestamp).toLocaleString()}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No history</p>
+            )}
           </div>
         </div>
       )}

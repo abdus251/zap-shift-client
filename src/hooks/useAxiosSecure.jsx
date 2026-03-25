@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router'
 import { useEffect } from 'react'
 
 const axiosSecure = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL: `http://localhost:5000`,
 })
 
 const useAxiosSecure = () => {
@@ -16,10 +16,6 @@ const useAxiosSecure = () => {
       async (config) => {
         if (user) {
           const token = await user.getIdToken()
-
-          // ✅ LOG HERE
-          console.log('Sending token:', token)
-
           config.headers.authorization = `Bearer ${token}`
         } else {
           console.log('❌ No user, no token sent')

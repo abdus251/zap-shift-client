@@ -21,7 +21,7 @@ const MyParcels = () => {
     queryFn: async () => {
       const res = await axiosSecure.get(`/parcels?email=${user.email}`)
       console.log('Fetched parcels:', res.data) // should log { success: true, data: [...] }
-      return res.data.data || []
+      return res.data || []
     },
   })
 
