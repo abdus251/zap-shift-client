@@ -27,7 +27,7 @@ const TrackParcel = () => {
       console.log('FETCHING:', search) // ✅ DEBUG
 
       const res = await axios.get(
-        `http://localhost:5000/parcels/track/${search}`,
+        `https://zap-shift-server-8nko.onrender.com/parcels/track/${search}`,
       )
 
       return res.data
